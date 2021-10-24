@@ -33,17 +33,6 @@ fi
 BOLD="\033[1m"
 REGULAR="\033[0m"
 
-# Zoom
-# fish
-# exa
-# spacething
-# theme applier
-# fonts
-# icons
-# theme
-# firefox extensions?
-# firefox bookmarks?
-
 
 #region Banner
 BANNER=$(cat << "BANNER"
@@ -138,6 +127,21 @@ check_for () {
   fi
 }
 
+# check if a package is installed and do something if it isn't
+# arguments
+#   1: package to check for
+#   2: flag to check version
+#   3: command to run if it is not installed
+check_for_version () {
+  VERSION="$(${1} ${2} 2>&1)"
+  if [[ $VERSION =~ "./" ]];
+  then
+    eval "${@:3}"
+  else
+    echo -e "${PROMPT} Found ${BOLD}${VERSION}${REGULAR} already installed."
+  fi
+}
+
 # run and print a command
 c () {
   echo -e "${COMMAND} ${@:1}" >&5
@@ -165,7 +169,6 @@ run "Install ${BOLD}Visual Studio Code${REGULAR}" check_for code install_vscode
 #endregion
 
 #region KiCad
-# Confirm install
 install_kicad () {
   # Kicad PPA
   c sudo add-apt-repository --yes ppa:kicad/kicad-5.1-releases
@@ -180,7 +183,6 @@ run "Install ${BOLD}KiCad${REGULAR}" check_for kicad install_kicad
 #endregion
 
 #region Discord
-# Confirm install
 install_discord () {
   # Download
   c wget -O ~/Downloads/discord.deb "https://discordapp.com/api/download?platform=linux&format=deb"
@@ -207,7 +209,6 @@ run "Install ${BOLD}Slack${REGULAR}" check_for slack-desktop install_slack
 #endregion
 
 #region Zoom
-# Confirm install
 install_zoom () {
   # Download
   c wget -O ~/Downloads/zoom.deb "https://zoom.us/client/latest/zoom_amd64.deb"
@@ -224,14 +225,79 @@ run "Install ${BOLD}Zoom${REGULAR}" check_for zoom install_zoom
 
 ## Packages
 #region
-#region Install build tools
-# build tools and essential packages
+# build tools and essential packages (for formula)
 install_packages () {
-  c sudo apt-get install build-essential manpages-dev gcc gcc-avr avrdude git neofetch -y
+  c sudo apt-get install build-essential manpages-dev gcc gcc-avr avrdude git neofetch zip unzip -y
   echo -e "${CHECK} Installed ${BOLD}required packages${REGULAR}."
 }
 
 run "Install ${BOLD}required packages${REGULAR}" check_for gcc-avr install_packages
+#endregion
+
+## Shell stuff
+#region
+#region fish
+install_fish () {
+  c sudo apt-get install -y fish
+  echo -e "${CHECK} Installed ${BOLD}fish${REGULAR}."
+}
+
+run "Install ${BOLD}fish${REGULAR}" check_for fish install_fish
+#endregion
+
+#region starship
+install_starship () {
+  c curl -fsSL https://starship.rs/install.sh -o ~/Downloads/starship
+  c sh ~/Downloads/starship -y
+  c "echo 'eval \"\$(starship init bash)\"' >> ~/.bashrc"
+  c mkdir -p ~/.config/fish
+  c "echo 'starship init fish | source' >> ~/.config/fish/config.fish"
+  echo -e "${CHECK} Installed ${BOLD}starship${REGULAR}."
+}
+
+run "Install ${BOLD}starship${REGULAR}" check_for_version starship -V install_starship
+#endregion
+
+#region jq
+install_jq () {
+  c sudo apt-get install -y jq
+  echo -e "${CHECK} Installed ${BOLD}jq${REGULAR}."
+}
+
+run "Install ${BOLD}jq${REGULAR}" check_for jq install_jq
+#endregion
+
+#region font
+install_cascadia_nf () {
+  # this mess gets the latestet release from API AND uses jq to get the download url AND downloads it
+  c mkdir -p ~/.fonts
+  URL="$(curl -s https://api.github.com/repos/adam7/delugia-code/releases/latest | jq '.assets | map(select(.name == "delugia-complete.zip")) | .[0].browser_download_url' | tr -d \\\")"
+  c curl -L "${URL}" -o ~/Downloads/delugia-code.zip
+  echo -e "${CHECK} Downloaded ${BOLD}Cascadia Code Nerd Font${REGULAR}."
+  c unzip -o ~/Downloads/delugia-code.zip -d ~/Downloads/delugia-code
+  c cp -r ~/Downloads/delugia-code/delugia-complete ~/.fonts/
+  c sudo fc-cache -f -v
+  echo -e "${CHECK} Installed ${BOLD}Cascadia Code Nerd Font${REGULAR}."
+}
+run "Install ${BOLD}Cascadia Code Nerd Font${REGULAR}" check_for cascadia_code install_cascadia_nf
+#endregion
+
+#endregion
+
+## Theme
+
+## Grub
+
+## NodeJS
+#region 
+install_node () {
+  c curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o ~/Downloads/n
+  c bash ~/Downloads/n lts
+  c sudo npm install -g n
+  echo -e "${CHECK} Installed ${BOLD}Node${REGULAR}."
+}
+
+run "Install ${BOLD}Node${REGULAR}" check_for_version node -v install_node
 #endregion
 
 # Done!
