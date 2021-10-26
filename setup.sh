@@ -231,7 +231,7 @@ install_packages () {
   echo -e "${CHECK} Installed ${BOLD}required packages${REGULAR}."
 }
 
-run "Install ${BOLD}required packages${REGULAR}" check_for gcc-avr install_packages
+run "Install ${BOLD}required packages${REGULAR}" install_packages
 #endregion
 
 ## Shell stuff
@@ -304,3 +304,32 @@ run "Install ${BOLD}Node${REGULAR}" check_for_version node -v install_node
 echo -e "${CHECK} Setup Complete. \n\n"
 
 neofetch
+
+# Install theme
+
+# Install grub theme
+#endregion
+
+## Git
+#region
+# Generate SSH Key
+
+# Update config
+
+# Setup Formula repo
+#endregion
+
+## Configs
+# Apply configs
+
+# missing:
+# edge install
+# theme
+# homepage settings
+# ddg
+# bookmarks
+# extensions
+
+# vscode
+# extensions
+# settings
