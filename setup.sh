@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 # Script to install and setup Ubuntu for Formula and general use
 # options
 #   -v: verbose (show output of all commands)
@@ -134,7 +134,7 @@ check_for () {
 #   3: command to run if it is not installed
 check_for_version () {
   VERSION="$(${1} ${2} 2>&1)"
-  if [[ $VERSION =~ "./" ]];
+  if [[ $VERSION =~ "${0}" ]];
   then
     eval "${@:3}"
   else
