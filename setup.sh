@@ -5,6 +5,17 @@
 #   -y: yes all (do not prompt before running each step)
 #   -s: show command (print commands before running)
 
+# TODO: chsh for fish
+# TODO: browser extensions
+# TODO: vscode extensions
+# TODO: browser bookmarks
+# TODO: kicad settings
+# TODO: git setup
+# TODO: kicad 6
+# TODO: ssh key
+# TODO: olin wifi
+# TODO: move configs and options into a config file (can have one for formula and one personal)
+
 # flags
 while getopts vys flag
 do
@@ -87,6 +98,11 @@ CHECK="\033[34m✓\033[0m"
 COMMAND="\033[34m$\033[0m"
 echo -e "${PROMPT} Welcome to the ${BOLD}Formula Setup Utility${REGULAR}!"
 
+# force a sudo prompt right away
+echo -e "${PROMPT} Setup requires super user permission "
+sudo -k
+sudo echo "" > /dev/null
+
 # run a task
 # arguments
 #   1: task description message
@@ -155,8 +171,8 @@ install_vscode () {
   # Microsoft APT Repository
   c "wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg"
   c sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/
-  c sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
-  echo -e "${CHECK} Added the ${BOLD}Microsoft APT Repository${REGULAR}."
+  c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list'
+  echo -e "${CHECK} Added the ${BOLD}Visual Studio Code APT Repository${REGULAR}."
   c rm -f packages.microsoft.gpg
   # VSCode
   c sudo apt install apt-transport-https -y
@@ -166,6 +182,20 @@ install_vscode () {
 }
 
 run "Install ${BOLD}Visual Studio Code${REGULAR}" check_for code install_vscode
+#endregion
+
+#region Edge
+install_edge () {
+  c "wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg"
+  c sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/
+  c 'echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/edge stable main" | sudo tee /etc/apt/sources.list.d/microsoft-edge-beta.list'
+  echo -e "${CHECK} Added the ${BOLD}Microsoft Edge APT Repository${REGULAR}."
+  c sudo apt update -y
+  c sudo apt install microsoft-edge-beta
+  echo -e "${CHECK} Installed ${BOLD}Microsoft Edge${REGULAR}."
+}
+
+run "Install ${BOLD}Microsoft Edge${REGULAR}" check_for microsoft-edge-beta install_edge
 #endregion
 
 #region KiCad
@@ -224,9 +254,28 @@ run "Install ${BOLD}Zoom${REGULAR}" check_for zoom install_zoom
 #endregion
 
 ## Packages
+
+#region
+# exa
+install_exa () {
+  EXA_VERSION="0.10.1"
+  c wget -q -O "~/Downloads/exa_${EXA_VERSION}.zip" "https://github.com/ogham/exa/releases/download/v${EXA_VERSION}/exa-linux-x86_64-v${EXA_VERSION}.zip"
+  c unzip -o "~/Downloads/exa_${EXA_VERSION}.zip" -d "~/Downloads/exa_v${EXA_VERSION}"
+  c sudo cp "~/Downloads/exa_v${EXA_VERSION}/bin/exa" /usr/local/bin/exa
+  c sudo chmod +x /usr/local/bin/exa
+  c sudo cp "~/Downloads/exa_v${EXA_VERSION}/man/exa.1" /usr/share/man/man1/exa.1
+  c sudo cp "~/Downloads/exa_v${EXA_VERSION}/completions/exa.fish" /usr/share/fish/vendor_completions.d/exa.fish
+  
+  echo -e "${CHECK} Installed ${BOLD}exa${REGULAR}."
+}
+
+run "Install ${BOLD}exa${REGULAR}" install_exa check_for exa
+#endregion
+
 #region
 # build tools and essential packages (for formula)
 install_packages () {
+  # TODO: move to config
   c sudo apt-get install build-essential manpages-dev gcc gcc-avr avrdude git neofetch zip unzip -y
   echo -e "${CHECK} Installed ${BOLD}required packages${REGULAR}."
 }
@@ -322,8 +371,7 @@ neofetch
 ## Configs
 # Apply configs
 
-# missing:
-# edge install
+# TODO: (missing)
 # theme
 # homepage settings
 # ddg
