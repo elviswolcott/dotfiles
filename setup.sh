@@ -11,6 +11,9 @@
 # TODO: browser bookmarks
 # TODO: kicad settings
 # TODO: git setup
+#         - clone repos from config
+#         - run smudge filters (should be in config?)
+#         - git config --global...
 # TODO: kicad 6
 # TODO: ssh key
 # TODO: olin wifi
@@ -340,7 +343,14 @@ run "Install ${BOLD}Cascadia Code Nerd Font${REGULAR}" check_for cascadia_code i
 ## NodeJS
 #region 
 install_node () {
+  # take ownership of the directory it installs to
+  sudo mkdir -p /usr/local/n
+  sudo chown -R $(whoami) /usr/local/n
+  sudo mkdir -p /usr/local/bin /usr/local/lib /usr/local/include /usr/local/share
+  sudo chown -R $(whoami) /usr/local/bin /usr/local/lib /usr/local/include /usr/local/share
+  
   c curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o ~/Downloads/n
+  chmod +x ~/Downloads/n
   c bash ~/Downloads/n lts
   c sudo npm install -g n
   echo -e "${CHECK} Installed ${BOLD}Node${REGULAR}."
@@ -371,7 +381,7 @@ neofetch
 ## Configs
 # Apply configs
 
-# TODO: (missing)
+# missing:
 # theme
 # homepage settings
 # ddg
