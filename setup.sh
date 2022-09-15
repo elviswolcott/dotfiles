@@ -1,9 +1,15 @@
 #!/bin/bash
-# Script to install and setup Ubuntu for Formula and general use
-# options
-#   -v: verbose (show output of all commands)
-#   -y: yes all (do not prompt before running each step)
-#   -s: show command (print commands before running)
+HELP=$(cat << "HELP"
+
+Install useful utilities and programs we use on Olin Electric Motorsports
+
+options
+  -v: verbose (show output of all commands)
+  -y: yes all (do not prompt before running each step)
+  -s: show command (print each command before running it)
+  -h: print help message
+HELP
+)
 
 # TODO: chsh for fish
 # TODO: browser extensions
@@ -14,18 +20,21 @@
 #         - clone repos from config
 #         - run smudge filters (should be in config?)
 #         - git config --global...
-# TODO: kicad 6
 # TODO: ssh key
 # TODO: olin wifi
 # TODO: move configs and options into a config file (can have one for formula and one personal)
 
 # flags
-while getopts vys flag
+while getopts vysh flag
 do
     case "${flag}" in
         v) VERBOSE='true';;
         y) YESALL='true';;
         s) SHOWCMD='true';;
+        h) 
+          echo "$HELP"
+          exit 0
+          ;;
     esac
 done
 
@@ -99,7 +108,7 @@ PROMPT="\033[1;33m>\033[0m"
 ASK="\033[1;33m?\033[0m"
 CHECK="\033[34m✓\033[0m"
 COMMAND="\033[34m$\033[0m"
-echo -e "${PROMPT} Welcome to the ${BOLD}Formula Setup Utility${REGULAR}!"
+echo -e "${PROMPT} Welcome to the ${BOLD}Olin Electric Motorsports Setup Tool${REGULAR}!"
 
 # force a sudo prompt right away
 echo -e "${PROMPT} Setup requires super user permission "
@@ -204,7 +213,7 @@ run "Install ${BOLD}Microsoft Edge${REGULAR}" check_for microsoft-edge-beta inst
 #region KiCad
 install_kicad () {
   # Kicad PPA
-  c sudo add-apt-repository --yes ppa:kicad/kicad-5.1-releases
+  c sudo add-apt-repository --yes ppa:kicad/kicad-6.0-releases
   echo -e "${CHECK} Added the ${BOLD}KiCad PPA${REGULAR}."
   # KiCad
   c sudo apt update
@@ -239,6 +248,20 @@ install_slack () {
 }
 
 run "Install ${BOLD}Slack${REGULAR}" check_for slack-desktop install_slack
+#endregion
+
+#region Arduino IDE (Legacy)
+install_arduino () {
+  # Download
+  c wget -O ~/Downloads/arduino.tar.xz "https://downloads.arduino.cc/arduino-1.8.19-linux64.tar.xz"
+  c yar -xvf ~/Downloads/arduino.tar.xz -C ~/Downloads/
+  c bash ~/Downloads/arduino-1.8.19/install.sh
+
+}
+
+# check is broken currently
+run "Install ${BOLD}Arduino IDE${REGULAR}" check_for_version arduino "--version" install_arduino
+
 #endregion
 
 #region Zoom
@@ -391,3 +414,6 @@ neofetch
 # vscode
 # extensions
 # settings
+
+# TODO: python 3
+# sudo ln -s /usr/bin/python3 /usr/bin/python (for bazel)
