@@ -240,7 +240,7 @@ run "Install ${BOLD}Discord${REGULAR}" check_for discord install_discord
 #region Slack
 install_slack () {
   # Download
-  c wget -O ~/Downloads/slack.deb "https://downloads.slack-edge.com/linux_releases/slack-desktop-4.17.0-amd64.deb"
+  c wget -O ~/Downloads/slack.deb "https://downloads.slack-edge.com/releases/linux/4.28.182/prod/x64/slack-desktop-4.28.182-amd64.deb"
   echo -e "${CHECK} Downloaded ${BOLD}Slack${REGULAR}."
   # Install
   c sudo apt install ~/Downloads/slack.deb -y
